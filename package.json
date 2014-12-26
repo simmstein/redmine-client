@@ -1,0 +1,9 @@
+{
+    "name": "Redmine desktop client",
+    "main": "src/index.html",
+    "window": {
+        "toolbar": false,
+        "width": 500,
+        "height": 800
+    }
+}

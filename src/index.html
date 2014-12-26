@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap-theme.min.css" />
+	<link rel="stylesheet" href="assets/css/app.css" />
+	<title>Redmine - Desktop client</title>
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<div class="navbar-brand">
+					<span id="home" class="pointer">REDMINE Desktop client</span>
+					<span id="title"></span>
+				</div>
+			</div>
+		</div>
+	</nav>
+	
+	<div id="content"></div>
+
+	<div id="flash"></div>
+
+	<div id="loading">
+		Loading…
+	</div>
+
+	<div id="counters"></div>
+
+	<script id="projects-list-template" type="text/x-handlebars-template">
+		<ul class="list-group">
+			{{#each projects}}
+				<li class="list-group-item project pointer" data-id="{{ id }}" data-identifier="{{ identifier }}" data-name="{{ name }}">
+					{{ name }}
+				</li>
+			{{/each}}
+		</ul>
+	</script>
+
+	<script id="issues-list-template" type="text/x-handlebars-template">
+		<ul class="list-group">
+			{{#each issues}}
+				<li class="list-group-item issue pointer" data-id="{{ id }}" data-name="{{ subject }}">
+					<span class="badge">{{ tracker.name }}</span>
+					{{ subject }}
+				</li>
+			{{/each}}
+		</ul>
+	</script>
+
+	<script id="issue-template" type="text/x-handlebars-template">
+		<div class="col-md-12">
+			<h3>{{ issue.subject }}</h3>
+			
+			<div id="counter" class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}">Start</div>
+
+			<span class="label label-default">#{{ issue.id }}</span>
+			<span class="label label-primary">{{ issue.author.name }}</span>
+			<span class="label label-info">{{ issue.created_on }}</span>
+
+			<hr />
+
+			<p class="well">{{{ issue.description }}}</p>
+		</div>
+	</script>
+
+	<script id="timers-list-template" type="text/x-handlebars-template">
+		<ul class="list-group">
+			{{#each counters}}
+				<li>
+					<div class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}"></div>
+					
+					{{ issue.subject }}
+					<span class="label label-default">#{{ issue.id }}</span>
+					<span data-id="{{ issue.project.id }}" data-name="{{ issue.project.name }}">{{ issue.project.name }}</span>
+				</li>
+			{{/each}}
+		</ul>
+	</script>
+
+	<script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
+	<script type="text/javascript" src="../node_modules/handlebars/dist/handlebars.min.js"></script>
+	<script type="text/javascript" src="../node_modules/require/require.js"></script>
+	<!-- <script type="text/javascript" src="../node_modules/node&#45;notifier/index.js"></script> -->
+	<script type="text/javascript" src="assets/js/app.js"></script>
+</body>
+</html>
+
