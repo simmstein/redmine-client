@@ -1,0 +1,2 @@
+var API_KEY = '12345';
+var API_HOST = 'https://example.com/redmine';
