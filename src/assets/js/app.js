@@ -1,235 +1,259 @@
 var App = (function() {
-	var app = this;
+    var app = this;
 
-	this.counters = [];
+    this.counters = [];
 
-	this.init = function() {
-		$('#home')
-			.click(app.loadProjects)
-			.trigger('click');
+    this.init = function() {
+        $('#home')
+            .click(app.loadProjects)
+            .trigger('click');
 
-		app.checkTimers();
-	}
+        app.checkTimers();
+    }
 
-	this.checkTimers = function() {
-		var $counters = $('#counters');
+    this.checkTimers = function() {
+        var $counters = $('#counters > ul');
+        var v = 0;
 
-		if (app.counters.length) {
-			var c = {
-				counters: []
-			};
+        if (!$counters.length) {
+            $counters = $('ul').addClass('list-group');
+            $('#counters').append($counters);
+        }
 
-			for (i in app.counters) {
-				if (app.counters[i]) {
-					c.counters.push(app.counters[i]);
-				}
-			}
+        if (app.counters.length) {
+            var source = $('#timer-template').html();
 
-			app.json2html(c, 'timers-list-template', '#counters');
-			
-			$counters.show();
-		} else {
-			$counters.empty().hide();
-		}
+            for (i in app.counters) {
+                if (app.counters[i]) {
+                    var c = app.counters[i];
 
-		window.setTimeout(function() {
-			app.checkTimers();
-		}, 1000);
-	}
+                    var $counter = $counters.children('li[data-id="' + c.issue.id + '"]');
 
-	this.loadProjects = function() {
-		app.setTitle('Projects', app.loadProjects);
+                    if (!$counter.length) {
+                        var template = Handlebars.compile(source);
+                        $counter = $(template(c));
+                        $counters.append($counter);
+                    }
 
-		var success = function(json) {
-			app.json2html(json, 'projects-list-template');
+                    if (c.value === 0) {
+                        $counter.remove();
+                    } else {
+                        v = 1;
+                        $counter.find('.counter').html(app.convertTime(c.value));
+                    }
+                }
+            }
 
-			$('.project').click(function(e) {
-				app.loadProjectIssues($(e.target).data('id'), $(e.target).data('name'));
-			});
-		}
+        }
 
-		app.get('projects.json', success, {
-			limit: 1000
-		});
-	}
+        if (v) {
+            $counters.parent().show();
+            padding = $counters.parent().height() + 10;
+        } else {
+            padding = 0;
+            $counters.empty().parent().hide();
+        }
 
-	this.loadProjectIssues = function(id, name) {
-		app.setTitle(
-			name,
-			function() {
-				app.loadProjectIssues(id, name);
-			}
-		);
+        $('#content').css('padding-bottom', padding);
 
-		var success = function(json) {
-			json.project = name;
+        window.setTimeout(function() {
+            app.checkTimers();
+        }, 1000);
+    }
 
-			app.json2html(json, 'issues-list-template');
+    this.loadProjects = function() {
+        app.setTitle('Projects', app.loadProjects);
 
-			$('.issue').click(function(e) {
-				app.loadProjectIssue($(e.target).data('id'), $(e.target).data('name'));
-			});
-		}
+        var success = function(json) {
+            app.json2html(json, 'projects-list-template');
 
-		app.get('issues.json?project_id=' + id, success, {
-			limit: 1000
-		});
-	}
+            $('.project').click(function(e) {
+                app.loadProjectIssues($(e.target).data('id'), $(e.target).data('name'));
+            });
+        }
 
-	this.setTitle = function(name, clickCallback) {
-		var $oTitle = $('#title');
-		var $title = $oTitle.clone();
+        app.get('projects.json', success, {
+            limit: 1000
+        });
+    }
 
-		$title
-			.html('&gt; ')
-			.append($('<span>').html(name).addClass('pointer'))
-			.click(clickCallback)
-			.insertAfter($oTitle);
+    this.loadProjectIssues = function(id, name) {
+        app.setTitle(
+            name,
+            function() {
+                app.loadProjectIssues(id, name);
+            }
+        );
 
-		$oTitle.remove();
-	}
+        var success = function(json) {
+            json.project = name;
 
-	this.loadProjectIssue = function(id, name) {
-		var success = function(json) {
-			var description = json.issue.description.replace(/\r\n/g, '<br />').trim();
-			var date = json.issue.created_on.split(' ');
-			json.issue.created_on = [date[0], date[1]].join(' ');
+            app.json2html(json, 'issues-list-template');
 
-			if (description.length) {
-				json.issue.description = json.issue.description.replace(/\r\n/g, '<br />');
-			} else {
-				json.issue.description = 'No description.';
-			}
+            $('.issue').click(function(e) {
+                app.loadProjectIssue($(e.target).data('id'), $(e.target).data('name'));
+            });
+        }
 
-			app.json2html(json, 'issue-template');
+        app.get('issues.json?project_id=' + id, success, {
+            limit: 1000
+        });
+    }
 
-			$('#counter').click(function() {
-				app.processCounter(id, true, json.issue);
-			});
+    this.setTitle = function(name, clickCallback) {
+        var $oTitle = $('#title');
+        var $title = $oTitle.clone();
 
-			app.processCounter(id, false, json.issue);
-		}
+        $title
+            .html('&gt; ')
+            .append($('<span>').html(name).addClass('pointer'))
+            .click(clickCallback)
+            .insertAfter($oTitle);
 
-		app.get('issues/' + id + '.json', success);
-	}
+        $oTitle.remove();
+    }
 
-	this.processCounter = function(projectId, start, issue) {
-		var $counter = $('#counter');
-		var $counters = $('.counter[data-id="' + projectId + '"]');
+    this.loadProjectIssue = function(id, name) {
+        var success = function(json) {
+            var description = json.issue.description.replace(/\r\n/g, '<br />').trim();
+            var date = json.issue.created_on.split(' ');
+            json.issue.created_on = [date[0], date[1]].join(' ');
 
-		if (typeof app.counters[projectId] === 'undefined') {
-			app.counters[projectId] = {
-				value: 0,
-				time: null,
-				started: false,
-				issue: issue
-			}
-		}
+            if (description.length) {
+                json.issue.description = json.issue.description.replace(/\r\n/g, '<br />');
+            } else {
+                json.issue.description = 'No description.';
+            }
 
-		if ($counter.data('id') == projectId && (app.counters[projectId].started || start)) {
-			app.counters[projectId].started = true;
-			$counter.html(app.convertTime(app.counters[projectId].value));
+            app.json2html(json, 'issue-template');
 
-			for (i in app.counters) {
-				if (i != projectId && app.counters[i].started) {
-					//console.log('Stop: ' + i);
-					app.counters[i].started = false;
-					window.clearInterval(app.counters[i].timer);
-					app.counters[i].timer = null;
-				}
-			}
-		}
+            $('#counter').click(function() {
+                app.processCounter(id, true, json.issue);
+            });
 
-		if (app.counters[projectId].started) {
-			$counters.html(app.convertTime(app.counters[projectId].value));
+            app.processCounter(id, false, json.issue);
+        }
 
-			app.counters[projectId].value++;
-			//console.log('Update: ' + projectId);
+        app.get('issues/' + id + '.json', success);
+    }
 
-			if (!app.counters[projectId].timer) {
-				app.counters[projectId].timer = window.setInterval(function() {
-					app.processCounter(projectId);
-				}, 1000);
-			}
-		}
-	}
+    this.processCounter = function(projectId, start, issue) {
+        var $counter = $('#counter');
+        var $counters = $('.counter[data-id="' + projectId + '"]');
 
-	this.convertTime = function(s) {
-		var hours = parseInt(s / 3600) % 24;
-		var minutes = parseInt(s / 60) % 60;
-		var seconds = s % 60;
+        if (typeof app.counters[projectId] === 'undefined') {
+            app.counters[projectId] = {
+                value: 0,
+                time: null,
+                started: false,
+                issue: issue
+            }
+        }
 
-		return hours + 'h ' + minutes + 'm ' + seconds + 's';
-	}
+        if ($counter.data('id') == projectId && (app.counters[projectId].started || start)) {
+            app.counters[projectId].started = true;
+            $counter.html(app.convertTime(app.counters[projectId].value));
 
-	this.json2html = function(json, template, output) {
-		var source = $('#' + template).html();
-		var $output = $(output ? output : '#content');
-		var template = Handlebars.compile(source);
-		var html = template(json);
+            for (i in app.counters) {
+                if (i != projectId && app.counters[i].started) {
+                    //console.log('Stop: ' + i);
+                    app.counters[i].started = false;
+                    window.clearInterval(app.counters[i].timer);
+                    app.counters[i].timer = null;
+                }
+            }
+        }
 
-		$output.html(html);
-	}
+        if (app.counters[projectId].started) {
+            $counters.html(app.convertTime(app.counters[projectId].value));
 
-	this.ajax = function(uri, type, callback, data) {
-		if (data === null) {
-			data = {};
-		}
+            app.counters[projectId].value++;
+            //console.log('Update: ' + projectId);
 
-		document.location.href = '#';
+            if (!app.counters[projectId].timer) {
+                app.counters[projectId].timer = window.setInterval(function() {
+                    app.processCounter(projectId);
+                }, 1000);
+            }
+        }
+    }
 
-		$('#content').hide();
-		$('#loading').show();
+    this.convertTime = function(s) {
+        var hours = parseInt(s / 3600) % 24;
+        var minutes = parseInt(s / 60) % 60;
+        var seconds = s % 60;
 
-		data = $.extend(data, {
-			key: API_KEY
-		});
+        return hours + 'h ' + minutes + 'm ' + seconds + 's';
+    }
 
-		$.ajax({
-			url: [API_HOST, uri].join('/'),
-			type: type,
-			data: data,
-			dataType: 'json',
-			headers: {
-				'X-Redmine-API-Key': API_KEY
-			},
-			success: function(e) {
-				$('#flash').hide();
-				$('#content').show();
-				$('#loading').hide();
+    this.json2html = function(json, template, output) {
+        var source = $('#' + template).html();
+        var $output = $(output ? output : '#content');
+        var template = Handlebars.compile(source);
+        var html = template(json);
 
-				if (null !== callback) {
-					return callback(e);
-				}
-			},
-			error: function() {
-				$('#content').show();
-				$('#loading').hide();
-				console.log('Request failed.');
-				app.flash('Request failed.', 'danger');
-			},
-			always: function() {}
-		});
-	}
+        $output.html(html);
+    }
 
-	this.post = function(uri, callback, data) {
-		return app.ajax(uri, 'post', callback, data);
-	}
+    this.ajax = function(uri, type, callback, data) {
+        if (data === null) {
+            data = {};
+        }
 
-	this.get = function(uri, callback, data) {
-		return app.ajax(uri, 'get', callback, data);
-	}
+        document.location.href = '#';
 
-	this.flash = function(message, type) {
-		$('#flash')
-			.html(message)
-			.removeAttr('class')
-			.addClass('alert')
-			.show()
-			.addClass('alert-' + (type ? type : 'info'));
-	}
+        $('#content').hide();
+        $('#loading').show();
 
-	return this;
+        data = $.extend(data, {
+            key: API_KEY
+        });
+
+        $.ajax({
+            url: [API_HOST, uri].join('/'),
+            type: type,
+            data: data,
+            dataType: 'json',
+            headers: {
+                'X-Redmine-API-Key': API_KEY
+            },
+            success: function(e) {
+                $('#flash').hide();
+                $('#content').show();
+                $('#loading').hide();
+
+                if (null !== callback) {
+                    return callback(e);
+                }
+            },
+            error: function() {
+                $('#content').show();
+                $('#loading').hide();
+                console.log('Request failed.');
+                app.flash('Request failed.', 'danger');
+            },
+            always: function() {}
+        });
+    }
+
+    this.post = function(uri, callback, data) {
+        return app.ajax(uri, 'post', callback, data);
+    }
+
+    this.get = function(uri, callback, data) {
+        return app.ajax(uri, 'get', callback, data);
+    }
+
+    this.flash = function(message, type) {
+        $('#flash')
+            .html(message)
+            .removeAttr('class')
+            .addClass('alert')
+            .show()
+            .addClass('alert-' + (type ? type : 'info'));
+    }
+
+    return this;
 });
 
 var app = new App();

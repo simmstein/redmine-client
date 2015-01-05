@@ -27,7 +27,9 @@
 		Loading…
 	</div>
 
-	<div id="counters"></div>
+	<div id="counters">
+		<ul class="list-group"></ul>
+	</div>
 
 	<script id="projects-list-template" type="text/x-handlebars-template">
 		<ul class="list-group">
@@ -55,7 +57,7 @@
 			<h3>{{ issue.subject }}</h3>
 			
 			<div id="counter" class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}">Start</div>
-
+			
 			<span class="label label-default">#{{ issue.id }}</span>
 			<span class="label label-primary">{{ issue.author.name }}</span>
 			<span class="label label-info">{{ issue.created_on }}</span>
@@ -66,18 +68,15 @@
 		</div>
 	</script>
 
-	<script id="timers-list-template" type="text/x-handlebars-template">
-		<ul class="list-group">
-			{{#each counters}}
-				<li>
-					<div class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}"></div>
-					
-					{{ issue.subject }}
-					<span class="label label-default">#{{ issue.id }}</span>
-					<span data-id="{{ issue.project.id }}" data-name="{{ issue.project.name }}">{{ issue.project.name }}</span>
-				</li>
-			{{/each}}
-		</ul>
+	<script id="timer-template" type="text/x-handlebars-template">
+		<li data-id="{{ issue.id }}">
+			<div class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}"></div>
+			
+			{{ issue.subject }}
+			<br />
+			<span class="label label-default">#{{ issue.id }}</span>
+			<span data-id="{{ issue.project.id }}" data-name="{{ issue.project.name }}">{{ issue.project.name }}</span>
+		</li>
 	</script>
 
 	<script type="text/javascript" src="../config/api.js"></script>

@@ -13,8 +13,15 @@
 }
 
 #counters {
-	_position: absolute;
-	_bottom: 0;
+	position: fixed;
+	bottom: 0;
+	padding: 15px 4px 4px 4px;
+	background: #fff;
+}
+
+#counters li {
+	clear: both;
+	margin-bottom: 4px;
 }
 
 #loading {
@@ -28,3 +35,4 @@
 	padding-top: 50%;
 	font-size: 15px;
 }
+
