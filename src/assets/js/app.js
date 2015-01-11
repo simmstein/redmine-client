@@ -109,13 +109,19 @@ var App = (function() {
     this.loadUpdatePanel = function() {
         if (app.counters.length) {
             var counters = [];
+			var today = new Date();
+			var currentDate = [today.getFullYear(), today.getMonth() + 1, today.getDate()].join('-');
 
             for (i in app.counters) {
                 if (app.counters[i]) {
-                    var c = app.counters[i];
-
-                    if (c.value !== 0) {
-                        counters.push(c);
+                    if (app.counters[i].value !== 0) {
+                        app.counters[i].started = false;
+                        var c = app.counters[i];
+                        c.update = {
+							time: app.convertTime(c.time + 60, true),
+							date: currentDate
+						};
+						counters.push(c);
                     }
                 }
             }
@@ -206,10 +212,14 @@ var App = (function() {
         }
     }
 
-    this.convertTime = function(s) {
+    this.convertTime = function(s, redmineFormat) {
         var hours = parseInt(s / 3600) % 24;
         var minutes = parseInt(s / 60) % 60;
         var seconds = s % 60;
+
+        if (redmineFormat) {
+            return hours + 'h' + minutes;
+        }
 
         return hours + 'h ' + minutes + 'm ' + seconds + 's';
     }
