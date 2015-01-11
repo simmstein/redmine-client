@@ -17,11 +17,17 @@
 	bottom: 0;
 	padding: 15px 4px 4px 4px;
 	background: #fff;
+	width: 100%;
 }
 
 #counters li {
 	clear: both;
+	padding-bottom: 4px;
 	margin-bottom: 4px;
+}
+
+#counters .counter {
+	margin-top: 5px;
 }
 
 #loading {

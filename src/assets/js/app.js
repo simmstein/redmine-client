@@ -3,10 +3,14 @@ var App = (function() {
 
     this.counters = [];
 
+    this.projects = [];
+
     this.init = function() {
         $('#home')
             .click(app.loadProjects)
             .trigger('click');
+
+        $('#update').click(app.loadUpdatePanel);
 
         app.checkTimers();
     }
@@ -67,6 +71,8 @@ var App = (function() {
         var success = function(json) {
             app.json2html(json, 'projects-list-template');
 
+            app.projects = json;
+
             $('.project').click(function(e) {
                 app.loadProjectIssues($(e.target).data('id'), $(e.target).data('name'));
             });
@@ -100,6 +106,28 @@ var App = (function() {
         });
     }
 
+    this.loadUpdatePanel = function() {
+        if (app.counters.length) {
+            var counters = [];
+
+            for (i in app.counters) {
+                if (app.counters[i]) {
+                    var c = app.counters[i];
+
+                    if (c.value !== 0) {
+                        counters.push(c);
+                    }
+                }
+            }
+
+            if (counters.length) {
+                app.json2html({
+                    counters: counters
+                }, 'update-panel');
+            }
+        }
+    }
+
     this.setTitle = function(name, clickCallback) {
         var $oTitle = $('#title');
         var $title = $oTitle.clone();
@@ -120,7 +148,7 @@ var App = (function() {
             json.issue.created_on = [date[0], date[1]].join(' ');
 
             if (description.length) {
-                json.issue.description = json.issue.description.replace(/\r\n/g, '<br />');
+                json.issue.description = description;
             } else {
                 json.issue.description = 'No description.';
             }

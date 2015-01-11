@@ -29,6 +29,8 @@
 
 	<div id="counters">
 		<ul class="list-group"></ul>
+
+		<button type="button" id="update" class="btn btn-danger btn-xs">Update online redmine</button>
 	</div>
 
 	<script id="projects-list-template" type="text/x-handlebars-template">
@@ -70,14 +72,66 @@
 
 	<script id="timer-template" type="text/x-handlebars-template">
 		<li data-id="{{ issue.id }}">
-			<div class="counter bg-primary pull-right pointer" data-id="{{ issue.id }}"></div>
-			
+			<span class="pull-right label label-primary pointer counter" data-id="{{ issue.id }}">#{{ issue.id }}</span>
 			{{ issue.subject }}
 			<br />
 			<span class="label label-default">#{{ issue.id }}</span>
-			<span data-id="{{ issue.project.id }}" data-name="{{ issue.project.name }}">{{ issue.project.name }}</span>
+			<span class="label label-info" data-id="{{ issue.project.id }}" data-name="{{ issue.project.name }}">{{ issue.project.name }}</span>
 		</li>
 	</script>
+	
+	<script id="update-panel" type="text/x-handlebars-template">
+		<div class="col-md-12">
+			<h3>Redmine updating</h3>
+			
+			{{#each counters}}
+				<div class="issue-counter form-horizontal">
+					<div class="form-group">
+						<label for="time_project_name_{{ issue.id }}" class="col-sm-2 control-label">Project</label>
+						<div class="col-sm-10">
+							{{ issue.project.name }}
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="time_issue_name_{{ issue.id }}" class="col-sm-2 control-label">Issue</label>
+						<div class="col-sm-10">
+							<span class="label label-default">#{{ issue.id }}</span>
+							{{ counters.issue.subject }}
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="time_date_{{ issue.id }}" class="col-sm-2 control-label">Date*</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="time_date_{{ issue.id }}" placeholder="Date">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="time_time_{{ issue.id }}" class="col-sm-2 control-label">Time*</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="time_time_{{ issue.id }}" placeholder="Time">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="time_comment_{{ issue.id }}" class="col-sm-2 control-label">Comment</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="time_comment_{{ issue.id }}" placeholder="Comment" maxlength="255">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="time_activity_{{ issue.id }}" class="col-sm-2 control-label">Activity*</label>
+						<div class="col-sm-10">
+							<select class="form-control" id="time_comment_{{ issue.id }}">
+								<option value="">Todo</option>
+								<option value="">Todo</option>
+								<option value="">Todo</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			{{/each}}
+		</div>
+	</script>
+
 
 	<script type="text/javascript" src="../config/api.js"></script>
 	<script type="text/javascript" src="../node_modules/jquery/dist/jquery.min.js"></script>
