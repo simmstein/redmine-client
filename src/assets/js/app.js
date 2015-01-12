@@ -109,8 +109,8 @@ var App = (function() {
     this.loadUpdatePanel = function() {
         if (app.counters.length) {
             var counters = [];
-			var today = new Date();
-			var currentDate = [today.getFullYear(), today.getMonth() + 1, today.getDate()].join('-');
+            var today = new Date();
+            var currentDate = [today.getFullYear(), today.getMonth() + 1, today.getDate()].join('-');
 
             for (i in app.counters) {
                 if (app.counters[i]) {
@@ -118,10 +118,10 @@ var App = (function() {
                         app.counters[i].started = false;
                         var c = app.counters[i];
                         c.update = {
-							time: app.convertTime(c.time + 60, true),
-							date: currentDate
-						};
-						counters.push(c);
+                            time: app.convertTime(c.time + 60, true),
+                            date: currentDate
+                        };
+                        counters.push(c);
                     }
                 }
             }
@@ -130,7 +130,51 @@ var App = (function() {
                 app.json2html({
                     counters: counters
                 }, 'update-panel');
+
+                $('#do-update').click(app.doUpdate);
             }
+        }
+    }
+
+    this.doUpdate = function() {
+        var getInputValue = function(field, issueId) {
+            return $('#time_' + field + '_' + issueId).val();
+        }
+
+        $('.issue-time').each(function() {
+            var $form = $(this);
+            var issueId = $(this).data('issue');
+            var data = {
+                time_entry: {
+                    issue_id: issueId,
+                    spent_on: getInputValue('date', issueId),
+                    hours: getInputValue('time', issueId),
+                    comments: getInputValue('comment', issueId),
+                    activity_id: getInputValue('activity', issueId)
+                }
+            }
+
+            app.post(
+                'time_entries.xml',
+                function() {
+                    //$form.remove();
+                },
+                data, 'time_entry'
+            );
+        });
+
+        if (!$('.issue-time').length) {
+            app.flash('Some forms are not correct.', 'danger');
+        } else {
+            app.counters = [];
+            $('#content').empty();
+			$('#counters > ul').remove();
+
+            app.flash('Redmine has been fully updated!', 'info');
+
+            window.setTimeout(function() {
+                app.loadProjects();
+            }, 3000);
         }
     }
 
@@ -268,6 +312,7 @@ var App = (function() {
                 $('#content').show();
                 $('#loading').hide();
                 console.log('Request failed.');
+				console.log([uri, type, data]);
                 app.flash('Request failed.', 'danger');
             },
             always: function() {}

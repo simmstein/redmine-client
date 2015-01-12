@@ -19,9 +19,9 @@
 		</div>
 	</nav>
 	
-	<div id="content"></div>
-
 	<div id="flash"></div>
+	
+	<div id="content"></div>
 
 	<div id="loading">
 		Loading…
@@ -85,7 +85,7 @@
 			<h3>Redmine updating</h3>
 			
 			{{#each counters}}
-				<div class="issue-counter form-horizontal">
+				<div class="issue-time form-horizontal" data-issue="{{ issue.id }}">
 					<div class="form-group">
 						<label for="time_project_name_{{ issue.id }}" class="col-sm-2 control-label">Project</label>
 						<div class="col-sm-10">
@@ -120,10 +120,16 @@
 					<div class="form-group">
 						<label for="time_activity_{{ issue.id }}" class="col-sm-2 control-label">Activity*</label>
 						<div class="col-sm-10">
-							<select class="form-control" id="time_comment_{{ issue.id }}">
-								<option value="">Todo</option>
-								<option value="">Todo</option>
-								<option value="">Todo</option>
+							<select class="form-control" id="time_activity_{{ issue.id }}">
+								<option value="8">Conception</option>
+								<option value="14">Gestion de projet</option>
+								<option value="15">Développement Frontend</option>
+								<option value="9" selected="selected">Développement Backend</option>
+								<option value="10">Recettage &amp; analyse </option>
+								<option value="11">Maintenance</option>
+								<option value="12">Administration système</option>
+								<option value="16">Veille technologique</option>
+								<option value="19">Heures sup.</option>
 							</select>
 						</div>
 					</div>
@@ -131,6 +137,8 @@
 					<hr />
 				</div>
 			{{/each}}
+
+			<p><button type="button" id="do-update" class="btn btn-danger">UPDATE</button></p>
 		</div>
 	</script>
 

@@ -7,6 +7,11 @@
 	cursor: pointer;
 }
 
+#flash {
+	position: fixed;
+	top: 50px;
+}
+
 .counter {
 	padding: 10px;
 	margin-top: -10px;
